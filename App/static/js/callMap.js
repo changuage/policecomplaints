@@ -13,6 +13,10 @@ function handleChange(event) {
 	console.log(this)
 	document.getElementById("racemap").src = "/static/Maps/" + this.value + ".html"
 	//map.src = "/static/Maps/" + race_form['race'].value + ".html"
+	$('html, body').animate({
+          scrollTop: ($('#formdropdown').offset().top+75)
+        }, 1000, "easeInOutExpo");
 }
 document.getElementById("raceForm")['race'].onchange = handleChange
+
 //console.log(race_button.onchange)

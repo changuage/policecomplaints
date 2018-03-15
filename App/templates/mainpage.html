@@ -49,7 +49,7 @@
               <a class="nav-link js-scroll-trigger" href="#about">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#download">Download</a>
+              <a class="nav-link js-scroll-trigger" href="#map">Map</a>
             </li>
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
@@ -66,8 +66,8 @@
           <div class="row">
             <div class="col-lg-8 mx-auto">
               <h1 class="brand-heading">Mapping Police Complaints</h1>
-              <p class="intro-text">Visualizing hotspots of complaints about Chicago police by beat
-                <br>using data from the Civilian Office of Police Complaints</p>
+              <p class="intro-text">Visualizing hotspots of complaints 
+                <br>about Chicago police by beat</p>
               <a href="#about" class="btn btn-circle js-scroll-trigger">
                 <i class="fa fa-angle-double-down animated"></i>
               </a>
@@ -76,12 +76,29 @@
         </div>
       </div>
     </header>
-
+    
     <!-- About Section -->
     <section id="about" class="content-section text-center">
       <div class="container">
+        <div class="col-lg-8 mx-auto">
+          <h2>Now what do we have here</h2>
+          <p>The Civilian Office of Police Accountability (<a href="http://www.chicagocopa.org/">COPA</a>), 
+            an independent organization within the City of Chicago, collects and processes civilian complaints about police. 
+            Below you will find a series of spatially corelated area maps of Police Beats with disproprotionately high numbers of complaints by the race of the person making the complaint.  
+            <br> <br>This is the start of project to quantify and visualize the civilian side of police interactions.
+          </p>
+          <a href="#mapsection" class="btn btn-circle js-scroll-trigger">
+            <i class="fa fa-angle-double-down animated"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="mapsection" class="map-section text-center">
+      <div class="container">
         <div class="row">
-          <div class="col-lg-8 mx-auto">
+          <div class="col-lg-8 mx-auto" id="formdropdown">
             <h2>Please Select Parameter You Would Like Visualized in a hotspot map</h2>
             <form id ='raceForm' action="{{ url_for('index') }}" method ='post'>  
               <select required name = "race" value="">
@@ -96,49 +113,34 @@
             </form>
             <div class="embed-responsive embed-responsive-1by1" style='margin-top: 1vw'>
             <iframe id ='racemap' class="embed-responsive-item" src='' }}></iframe>
-          </div>
+              </div>
+            <a href="#contact" class="btn btn-circle js-scroll-trigger">
+              <i class="fa fa-angle-double-down animated"></i>
+            </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Download Section -->
-    <section id="download" class="download-section content-section text-center">
-      <div class="container">
-        <div class="col-lg-8 mx-auto">
-          <div class="embed-responsive embed-responsive-1by1">
-            <iframe id ='racemap' class="embed-responsive-item" src={{ url_for('static', filename= 'Maps/' + map) }}></iframe>
-          </div>
-        </div>
-      </div>
-    </section>
+
 
     <!-- Contact Section -->
     <section id="contact" class="content-section text-center">
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto">
-            <h2>Contact Start Bootstrap</h2>
-            <p>Feel free to leave us a comment on the
-              <a href="http://startbootstrap.com/template-overviews/grayscale/">Grayscale template overview page</a>
-              on Start Bootstrap to give some feedback about this theme!</p>
+            <h2>Contact and Github</h2>
             <ul class="list-inline banner-social-buttons">
               <li class="list-inline-item">
-                <a href="https://twitter.com/SBootstrap" class="btn btn-default btn-lg">
+                <a href="https://twitter.com/robotvsbear" class="btn btn-default btn-lg">
                   <i class="fa fa-twitter fa-fw"></i>
                   <span class="network-name">Twitter</span>
                 </a>
               </li>
               <li class="list-inline-item">
-                <a href="https://github.com/BlackrockDigital/startbootstrap" class="btn btn-default btn-lg">
+                <a href="https://github.com/robotvsbears/policecomplaints/" class="btn btn-default btn-lg">
                   <i class="fa fa-github fa-fw"></i>
                   <span class="network-name">Github</span>
-                </a>
-              </li>
-              <li class="list-inline-item">
-                <a href="https://plus.google.com/+Startbootstrap/posts" class="btn btn-default btn-lg">
-                  <i class="fa fa-google-plus fa-fw"></i>
-                  <span class="network-name">Google+</span>
                 </a>
               </li>
             </ul>
@@ -150,7 +152,7 @@
     <!-- Footer -->
     <footer>
       <div class="container text-center">
-        <p>Copyright &copy; Your Website 2018</p>
+        <p>Made by Patrick Chang</p>
       </div>
     </footer>
 
