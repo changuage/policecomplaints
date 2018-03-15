@@ -9,6 +9,8 @@ import pysal as ps
 import numpy as np
 import folium
 
+from App import db
+from App.models import beatcomplaint
 
 
 def pulldata():
@@ -30,6 +32,8 @@ def cleandata(data):
 	data = data.join(split, how ="right")
 	data['complaint_date'] =  pd.to_datetime(data['complaint_date'], format='%Y%m%dT%H:%M:%S.%f')
 	data['complaint_year'] = data.complaint_date.dt.year
+	data = data.drop(['age_of_complainant','assignment','case_type','complaint_month','complaint_day','complaint_hour',
+                'current_status','finding_code','police_shooting','sex_of_complainant'],axis=1)
 	return data
 
 def create_shapefile(fileloc):
@@ -140,11 +144,27 @@ def spatialcorrelation(data,column,filename):
 
 	my_map.save('App/static/Maps/'+filename +'.html')
 
+def backuptords(data):
+	
+	#Deletes previous data
+	db.session.query(beatcomplaint).delete()
+	
+	#Writes new data to RDS
+	for index, row in data.iterrows():
+   		complaint = beatcomplaint(id = index, 
+   			beat=str(row[0]), 
+   			complaint_date=str(row[1]), 
+   			current_category=str(row[2]),
+   			log_no=str(row[3]),
+   			race_of_complainant=str(row[4]))
+   		db.session.add(complaint)
+	db.session.commit()
 
 if __name__ == "__main__":
 	#Pulls data from API
 	complaint = pulldata()
 	complaint = cleandata(complaint)
+	#backuptords(complaint)
 
 	#Reads the police beats shapefile
 	beats = create_shapefile('App/static/Shapefile/policebeats.shp')

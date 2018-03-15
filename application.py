@@ -15,9 +15,9 @@ from App import application
 def index():
 	if request.method == 'POST':
 		race = str(request.form.get('race'))
-		return render_template('mainpage2.html',map = race+ '.html')
+		return render_template('mainpage.html',map = race+ '.html')
 	else:
-		return render_template('mainpage2.html', map= 'blank.html')
+		return render_template('mainpage.html', map= 'blank.html')
 
 
 @application.route('/about')

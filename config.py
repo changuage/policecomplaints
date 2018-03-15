@@ -8,9 +8,7 @@ import os
 # NOTE: all the RDS env variables are automatically set by Beanstalk when
 # an RDS database is added. 
 
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://pangur:pangurpoo@policedb.citpvzdsvfxn.us-west-2.rds.amazonaws.com:3306/policedb'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://spencer:msia_423@db.c70edrasw7bt.us-west-2.rds.amazonaws.com:3306/epl'
-
-
-# SQLALCHEMY_TRACK_MODIFICATIONS = False
 # SECRET_KEY = 'sbQm38a1awYXbmfWLgZaHCupa8egevTiZusvHx/G'
