@@ -14,7 +14,7 @@ function handleChange(event) {
 	document.getElementById("racemap").src = "/static/Maps/" + this.value + ".html"
 	//map.src = "/static/Maps/" + race_form['race'].value + ".html"
 	$('html, body').animate({
-          scrollTop: ($('#formdropdown').offset().top+75)
+          scrollTop: ($('#formdropdown').offset().top+20)
         }, 1000, "easeInOutExpo");
 }
 document.getElementById("raceForm")['race'].onchange = handleChange
