@@ -2,6 +2,8 @@ import requests
 import json
 import pandas as pd
 from pandas.io.json import json_normalize
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sodapy import Socrata
 from geopandas import gpd
