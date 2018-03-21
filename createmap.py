@@ -17,7 +17,12 @@ from App.models import beatcomplaint
 
 def pulldata():
 
-	"""Pulls and returns police complaint data from the api""" 
+	"""
+	Pulls and returns police complaint data from the api
+
+	:return: Most recent police data pulled from the Chicago Open Data Portal API
+	"""
+
 	client = Socrata("data.cityofchicago.org", 'EjrjYzG6YAkBx7bPBzME8jD4c')
 	results = client.get("w3hi-cfa4",limit = 500000)
 	data = pd.DataFrame.from_records(results)
@@ -25,7 +30,12 @@ def pulldata():
 	return data
 
 def cleandata(data):
-	"""Cleans initial police data""" 
+	"""
+	Cleans initial police data
+
+	:param data: Chicago open data portal
+	:return: Dropped columns and created new features for Map building
+	"""
 	split = data['beat'].str.split('|').apply(pd.Series, 1).stack()
 	split.index = split.index.droplevel(-1)
 	split.name = 'beat'
@@ -39,14 +49,25 @@ def cleandata(data):
 	return data
 
 def create_shapefile(fileloc):
-	"""Reads the shapefile at the filelocation (fileloc)"""
+	"""
+	Reads the shapefile at the filelocation and returns it as a geopandas shapefile
+
+	:param fileloc: file path of shapefile
+	:return: Geopandas shapefile
+	"""
 	shapefile = gpd.read_file(fileloc)
 	shapefile['beat_num'] = pd.to_numeric(shapefile['beat_num'])
 
 	return shapefile
 
 def add_race(shapefile, data):
-	"""Appends aggregated race tabulations of police complaints to a beats-level dataframe"""
+	"""
+	Appends aggregated race tabulations of police complaints to a beats-level dataframe
+
+	:param shapefile: Basic beats Shapefile
+	:param data: Cleaned and processed police complaints dataset
+	:return: Police beats shapefile with aggregated race dataset appended
+	"""
 	race = data[['beat','race_of_complainant']].dropna()
 	race_long = pd.get_dummies(race, columns = ['race_of_complainant']) 
 	race_long.rename(columns={'race_of_complainant_African American / Black':'Black', 
@@ -70,7 +91,12 @@ def add_race(shapefile, data):
 	return shapefile
 
 def add_type(shapefile, data):
-	"""Appends aggregated complaint type tabulations of police complaints to a beats-level dataframe"""
+	"""
+	Appends aggregated complaint type tabulations of police complaints to a beats-level dataframe
+	:param shapefile: Basic beats Shapefile
+	:param data: Cleaned and processed police complaints dataset
+	:return: Police beats shapefile with aggregated complaint type dataset appended
+	"""
 	typeaction = data[['beat','current_category']].dropna()
 	type_long = pd.get_dummies(typeaction, columns=['current_category'])
 	type_long = type_long.rename(columns={'current_category_Bias':'bias',
@@ -114,7 +140,13 @@ def add_type(shapefile, data):
 
 
 def spatialcorrelation(data,column,filename):
-	"""Performs a spatial correlation on the column and exports an html map of hot/cold spots"""
+	"""
+	Performs a spatial correlation on the column and exports an html map of hot/cold spots
+	:param data: Shapefile with data to be spatially correlated apppended
+	:param column: Name of the parameter that map is made of
+	:param filename: Output filename
+	:return: Saves an html map in the static/Maps folder
+	"""
 	W = ps.weights.Queen.from_dataframe(data)
 	W.transform = 'r'
 	moran = ps.Moran_Local(column.values, W, permutations=9999)
@@ -147,19 +179,24 @@ def spatialcorrelation(data,column,filename):
 	my_map.save('App/static/Maps/'+filename +'.html')
 
 def backuptords(data):
-	
+	'''
+	Stores the cleaned and process police data to RDS post
+	:param data: Cleaned and processed police data
+	:return: N/a
+	'''
 	#Deletes previous data
 	db.session.query(beatcomplaint).delete()
-	
+
 	#Writes new data to RDS
-	for index, row in data.iterrows():
-   		complaint = beatcomplaint(id = index, 
-   			beat=str(row[0]), 
-   			complaint_date=str(row[1]), 
-   			current_category=str(row[2]),
-   			log_no=str(row[3]),
-   			race_of_complainant=str(row[4]))
-   		db.session.add(complaint)
+	for i in range(1, data.shape):
+		complaint = beatcomplaint(id=i,
+								  beat=str(data.iloc[i, 0]),
+								  complaint_date=str(data.iloc[i, 1]),
+								  current_category=str(data.iloc[i, 2]),
+								  log_no=str(data.iloc[i, 3]),
+								  race_of_complainant=str(data.iloc[i, 4]))
+		print(data.iloc[i, 0])
+		db.session.add(complaint)
 	db.session.commit()
 
 if __name__ == "__main__":
@@ -167,6 +204,7 @@ if __name__ == "__main__":
 	complaint = pulldata()
 	complaint = cleandata(complaint)
 	#backuptords(complaint)
+	complaint.to_csv("copmlaint.csv")
 
 	#Reads the police beats shapefile
 	beats = create_shapefile('App/static/Shapefile/policebeats.shp')
