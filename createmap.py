@@ -10,20 +10,26 @@ from geopandas import gpd
 import pysal as ps
 import numpy as np
 import folium
+import logging
+
 
 from App import db
 from App.models import beatcomplaint
+from config import *
 
+#Define the Logger
+logging.basicConfig(level=logging.INFO)
 
 def pulldata():
-
 	"""
 	Pulls and returns police complaint data from the api
 
 	:return: Most recent police data pulled from the Chicago Open Data Portal API
 	"""
+    logger.info('Pull Data from API')
 
-	client = Socrata("data.cityofchicago.org", 'EjrjYzG6YAkBx7bPBzME8jD4c')
+
+	client = Socrata("data.cityofchicago.org", socrataKey)
 	results = client.get("w3hi-cfa4",limit = 500000)
 	data = pd.DataFrame.from_records(results)
 
@@ -36,6 +42,8 @@ def cleandata(data):
 	:param data: Chicago open data portal
 	:return: Dropped columns and created new features for Map building
 	"""
+    logger.info('Clean Data from API')
+
 	split = data['beat'].str.split('|').apply(pd.Series, 1).stack()
 	split.index = split.index.droplevel(-1)
 	split.name = 'beat'
@@ -55,9 +63,11 @@ def create_shapefile(fileloc):
 	:param fileloc: file path of shapefile
 	:return: Geopandas shapefile
 	"""
+    logger.info('Importing shapefile')
+
 	shapefile = gpd.read_file(fileloc)
 	shapefile['beat_num'] = pd.to_numeric(shapefile['beat_num'])
-
+	print(type(shapefile))
 	return shapefile
 
 def add_race(shapefile, data):
@@ -68,6 +78,8 @@ def add_race(shapefile, data):
 	:param data: Cleaned and processed police complaints dataset
 	:return: Police beats shapefile with aggregated race dataset appended
 	"""
+    logger.info('Add race aggregates to shapefile')
+
 	race = data[['beat','race_of_complainant']].dropna()
 	race_long = pd.get_dummies(race, columns = ['race_of_complainant']) 
 	race_long.rename(columns={'race_of_complainant_African American / Black':'Black', 
@@ -97,6 +109,8 @@ def add_type(shapefile, data):
 	:param data: Cleaned and processed police complaints dataset
 	:return: Police beats shapefile with aggregated complaint type dataset appended
 	"""
+    logger.info('Add complaint type aggregates to shapefile')
+
 	typeaction = data[['beat','current_category']].dropna()
 	type_long = pd.get_dummies(typeaction, columns=['current_category'])
 	type_long = type_long.rename(columns={'current_category_Bias':'bias',
@@ -147,6 +161,8 @@ def spatialcorrelation(data,column,filename):
 	:param filename: Output filename
 	:return: Saves an html map in the static/Maps folder
 	"""
+    logger.info('Create ' + filename + ' map')
+
 	W = ps.weights.Queen.from_dataframe(data)
 	W.transform = 'r'
 	moran = ps.Moran_Local(column.values, W, permutations=9999)
@@ -184,6 +200,8 @@ def backuptords(data):
 	:param data: Cleaned and processed police data
 	:return: N/a
 	'''
+    logger.info('Backing up to RDS')
+
 	#Deletes previous data
 	db.session.query(beatcomplaint).delete()
 
@@ -203,8 +221,7 @@ if __name__ == "__main__":
 	#Pulls data from API
 	complaint = pulldata()
 	complaint = cleandata(complaint)
-	#backuptords(complaint)
-	complaint.to_csv("copmlaint.csv")
+	backuptords(complaint)
 
 	#Reads the police beats shapefile
 	beats = create_shapefile('App/static/Shapefile/policebeats.shp')
