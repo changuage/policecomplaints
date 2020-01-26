@@ -26,7 +26,7 @@ Suggested Steps to Reproduce
 
     `pip install -r requirements.txt`
 
-5. Navigate to AnimalOutcomes/ and create a config.py file with the information necessary to create your database connection. **Do not commit this file.** 
+5. Navigate to policecomplaints/ and create a config.py file with the information necessary to create your database connection. **Do not commit this file.** 
      
     ```python
 	import os
